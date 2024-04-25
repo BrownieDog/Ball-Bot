@@ -71,20 +71,43 @@
 //     }
 //     return -1;
 // }
-#include "stm32f405xx.h"
-#include "imu.h"
-int main(){
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
-    GPIOC->MODER |= GPIO_MODER_MODE1_0; //mode 0b01 for output mode 
+// #include "stm32f405xx.h"
+// #include "imu.h"
+// int main(){
+//     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
+//     GPIOC->MODER |= GPIO_MODER_MODE1_0; //mode 0b01 for output mode 
 
-    GPIOC->ODR |= GPIO_ODR_OD1;
+//     GPIOC->ODR |= GPIO_ODR_OD1;
     
-    initializeIMU();
+//     initializeIMU();
 
-    while(1){
-        GPIOC->ODR |= GPIO_ODR_OD1;
-        for(volatile int i=0; i<250000; i++);
-        GPIOC->ODR &= ~GPIO_ODR_OD1;
-        for(volatile int i=0; i<750000; i++);
-    }
+//     while(1){
+//         GPIOC->ODR |= GPIO_ODR_OD1;
+//         for(volatile int i=0; i<250000; i++);
+//         GPIOC->ODR &= ~GPIO_ODR_OD1;
+//         for(volatile int i=0; i<750000; i++);
+//     }
+// }
+
+// #define P 0.001
+// #define I 0.001
+// #define dt 0.01; //100 Hz
+
+// float fun(float in){
+//     static float integrator = 0;
+//     float p = P*in;
+//     integrator += in*dt;
+//     float i = I*integrator;
+
+//     return p + i;
+// }
+
+#include <Arduino.h>
+
+void setup(){
+    
+}
+
+void loop(){
+
 }
