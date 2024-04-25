@@ -1,9 +1,10 @@
 #ifndef IMU_H
 #define IMU_H
-
-void initializeIMU(void);
-void readAcc(float *xyz);
-void readGyro(float *xyz);
+extern "C" {
+    void initializeIMU(void);
+    void readAcc(float *xyz);
+    void readGyro(float *xyz);
+}
 
 #define I2C_DIRECTION_TRANSMIT 0
 #define I2C_DIRECTION_RECIEVE 1

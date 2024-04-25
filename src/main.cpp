@@ -78,6 +78,7 @@ int main(){
     GPIOC->MODER |= GPIO_MODER_MODE1_0; //mode 0b01 for output mode 
 
     GPIOC->ODR |= GPIO_ODR_OD1;
+    
     initializeIMU();
 
     while(1){

@@ -61,7 +61,7 @@ void initializeIMU(void){
     //the 100 pF rise time would be 1 us. 1 us is the specification for sm, not fm. Therefore configuration should be done in sm mode not fm mode.
 
     I2C1->CCR &= ~I2C_CCR_FS; //standard speed mode, max bus frequency 100 kHz
-    I2C1->CCR &- ~I2C_CCR_DUTY; // 1:2 duty cycle
+    I2C1->CCR &= ~I2C_CCR_DUTY; // 1:2 duty cycle
     //100 kHz -> 10 us, thus 10000 / 62.5 = 160 cycles, thus 160 / 3 = 53.33 is the ideal value for the CCR. Selecting 54 gives 10.125 us or 98.7 kHz
     I2C1->CCR &= ~I2C_CCR_CCR;
     I2C1->CCR |= 54U << I2C_CCR_CCR_Pos;
@@ -183,7 +183,7 @@ void prvI2CRecieve(uint8_t address, uint8_t *buffer, unsigned int bufferLen){
 void prvI2CReadIMURegister(uint8_t address, uint8_t reg, uint8_t *buffer){
     prvStartI2CTransaction();
     prvSelectI2CAddress(address, I2C_DIRECTION_TRANSMIT);
-    prvWriteI2C(reg, 1);
+    prvWriteI2C(&reg, 1);
     //no stop bit
-    prvI2CRecieve(address, *buffer, 1); //repeats the start bit as per specification
+    prvI2CRecieve(address, buffer, 1); //repeats the start bit as per specification
 }
