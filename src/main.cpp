@@ -103,7 +103,7 @@
 // }
 
 #include <Arduino.h>
-#include "QuickSilver.hh"
+// #include "QuickSilver.hh"
 #include <Arduino_LSM6DS3.h>
 #define P 1
 #define I 1
@@ -120,8 +120,10 @@ void loop(){
     //setup part 2
     float acc[3] = {0,0,0};
     float gyro[3] = {0,0,0};
-    QuickSilver attitude; 
-    attitude.initialize();
+    float alpha = 0; //when we turn on, we are perfectly straight!
+    float beta = 0;
+    // QuickSilver attitude; 
+    // attitude.initialize(0.05);
     unsigned long oldMicros = micros();
 
     //the real loop
@@ -129,10 +131,13 @@ void loop(){
         float dt = (float)(oldMicros - micros()) / 1000000.0f;
         oldMicros = micros();
 
-        IMU.readAcceleration(acc[0], acc[1], acc[3]);
+        // IMU.readAcceleration(acc[0], acc[1], acc[3]);
         IMU.readGyroscope(gyro[0], gyro[1], gyro[2]);
 
-        attitude.update_estimate(acc, gyro, dt);
+        // attitude.update_estimate(acc, gyro, dt);
+        //update orientation from gyro rates
+        alpha += gyro[0] * dt;
+        beta += gyro[1] * dt;
 
         //Control Loop
         float Vx = PI_fun(acc[1], dt);
