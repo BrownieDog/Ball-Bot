@@ -106,3 +106,7 @@ void QuickSilver::initialize(float b) {
 float* QuickSilver::getGravityVector(){
     return gravity_vector;
 }
+
+Euler QuickSilver::getEuler(){
+    return eulerAngles;
+}
