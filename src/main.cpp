@@ -140,31 +140,19 @@ void loop(){
         beta += gyro[1] * dt;
 
         //Control Loop
-        float Vx = PI_fun(acc[1], dt);
-        float Vy = PI_fun(acc[0], dt);
+        float Vx = PI_fun(alpha, dt);
+        float Vy = PI_fun(beta, dt);
 
         //Do the maths mathily to get V1, V2, V3
-        float V1 = 2*Vx - 2*Vy/sqrt(3);
-        float V2 = 2*Vx + 2*Vy/sqrt(3);
-        float V3 = Vx;
+        float V[3] = {0,0,0};
+
+        V[0] = 2*Vx - 2*Vy/sqrt(3);
+        V[1] = 2*Vx + 2*Vy/sqrt(3);
+        V[2] = Vx;
         
-        if (V1 > 1) {
-            V1 = 1;
-        }
-        if (V1 < -1){
-            V1 = -1;
-        }
-        if (V2 > 1) {
-            V2 = 1;
-        }
-        if (V2 < -1){
-            V2 = -1;
-        }
-        if (V3 > 1) {
-            V3 = 1;
-        }
-        if (V3 < -1){
-            V3 = -1;
+        for(int i=0; i<3; i++){
+            V[i] = (V[i]>1) ? V[i] : 1;
+            V[i] = (V[i]<-1) ? V[i] : -1;
         }
     }
 }
