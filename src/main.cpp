@@ -105,7 +105,12 @@
 #include <Arduino.h>
 #include "QuickSilver.hh"
 #include <Arduino_LSM6DS3.h>
+#define P 1
+#define I 1
+#define MAXV 242981
+#define MINV 12
 
+float PI_fun(float in, float dt);
 
 void setup(){
     IMU.begin();
@@ -129,6 +134,40 @@ void loop(){
 
         attitude.update_estimate(acc, gyro, dt);
 
+        //Control Loop
+        float Vx = PI_fun(acc[1], dt);
+        float Vy = PI_fun(acc[0], dt);
 
+        //Do the maths mathily to get V1, V2, V3
+        float V1 = 2*Vx - 2*Vy/sqrt(3);
+        float V2 = 2*Vx + 2*Vy/sqrt(3);
+        float V3 = Vx;
+        
+        if (V1 > 1) {
+            V1 = 1;
+        }
+        if (V1 < -1){
+            V1 = -1;
+        }
+        if (V2 > 1) {
+            V2 = 1;
+        }
+        if (V2 < -1){
+            V2 = -1;
+        }
+        if (V3 > 1) {
+            V3 = 1;
+        }
+        if (V3 < -1){
+            V3 = -1;
+        }
     }
+}
+
+float PI_fun(float in, float dt){
+    static float integrator = 0;
+    float p = P*in;
+    integrator += in*dt;
+    float i = I*integrator;
+    return p + i;
 }
