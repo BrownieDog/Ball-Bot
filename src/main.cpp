@@ -103,11 +103,32 @@
 // }
 
 #include <Arduino.h>
+#include "QuickSilver.hh"
+#include <Arduino_LSM6DS3.h>
+
 
 void setup(){
-    
+    IMU.begin();
 }
 
 void loop(){
+    //setup part 2
+    float acc[3] = {0,0,0};
+    float gyro[3] = {0,0,0};
+    QuickSilver attitude; 
+    attitude.initialize();
+    unsigned long oldMicros = micros();
 
+    //the real loop
+    while(1){ //will this run so fast theat our sensors don't have a chance to properly update?
+        float dt = (float)(oldMicros - micros()) / 1000000.0f;
+        oldMicros = micros();
+
+        IMU.readAcceleration(acc[0], acc[1], acc[3]);
+        IMU.readGyroscope(gyro[0], gyro[1], gyro[2]);
+
+        attitude.update_estimate(acc, gyro, dt);
+
+
+    }
 }
