@@ -105,34 +105,71 @@
 #include <Arduino.h>
 // #include "QuickSilver.hh"
 #include <Arduino_LSM6DS3.h>
+#include "motor.h"
+
 #define P 1
 #define I 1
 #define MAXV 242981
 #define MINV 12
 
+#define X_CAL 0.31724f
+#define Y_CAL -2.29015f
+#define Z_CAL 0.13525f
+
+static LSM6DS3Class imu(Wire, LSM6DS3_ADDRESS);
+
 float PI_fun(float in, float dt);
 
 void setup(){
-    IMU.begin();
+    imu.begin();
+
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
+    GPIOC->MODER |= GPIO_MODER_MODE1_0; //mode 0b01 for output mode 
+
+    GPIOC->ODR |= GPIO_ODR_OD1;
 }
 
 void loop(){
     //setup part 2
-    float acc[3] = {0,0,0};
-    float gyro[3] = {0,0,0};
-    float alpha = 0; //when we turn on, we are perfectly straight!
-    float beta = 0;
+    static MotorSet motors;
+
+    static float acc[3] = {0,0,0};
+    static float gyro[3] = {0,0,0};
+    static float alpha = 0; //when we turn on, we are perfectly straight!
+    static float beta = 0;
     // QuickSilver attitude; 
     // attitude.initialize(0.05);
-    unsigned long oldMicros = micros();
+    static unsigned long oldMicros = micros();
 
-    //the real loop
-    while(1){ //will this run so fast theat our sensors don't have a chance to properly update?
-        float dt = (float)(oldMicros - micros()) / 1000000.0f;
+    // GPIOC->ODR |= GPIO_ODR_OD1;
+    // for(volatile int i=0; i<250000; i++);
+    // GPIOC->ODR &= ~GPIO_ODR_OD1;
+    // for(volatile int i=0; i<750000; i++);
+    GPIOC->ODR ^= GPIO_ODR_OD1;
+
+    float dt = (float)(micros() - oldMicros) / 1000000.0f;
+
+    if(dt >= 0.01){ //limit the main loop to 100 Hz
         oldMicros = micros();
 
         // IMU.readAcceleration(acc[0], acc[1], acc[3]);
-        IMU.readGyroscope(gyro[0], gyro[1], gyro[2]);
+        imu.readGyroscope(gyro[0], gyro[1], gyro[2]);
+        gyro[0] -= X_CAL;
+        gyro[1] -= Y_CAL;
+        gyro[2] -= Z_CAL;
+
+
+        //Sensor Calbiration
+        // static float sum[3] = {0,0,0};
+        // static unsigned int count = 0;
+        // float avg[3] = {0,0,0};
+        // count++;
+        // for(int i=0; i<3; i++){
+        //     sum[i] += gyro[i];
+        //     avg[i] = sum[i] / (float)count;
+        // }
+        
+        
 
         // attitude.update_estimate(acc, gyro, dt);
         //update orientation from gyro rates
@@ -151,8 +188,9 @@ void loop(){
         V[2] = Vx;
         
         for(int i=0; i<3; i++){
-            V[i] = (V[i]>1) ? V[i] : 1;
-            V[i] = (V[i]<-1) ? V[i] : -1;
+            V[i] = (V[i]>1) ? 1.0f : V[i];
+            V[i] = (V[i]<-1) ? 1.0f : V[i];
+            motors.setMotor(i, V[i]);
         }
     }
 }
